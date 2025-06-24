@@ -1,0 +1,16 @@
+# Local LLM loading (Mistral, LLaMA, etc.)
+llama-cpp-python
+
+# Retrieval-Augmented Generation (RAG)
+langchain
+sentence-transformers==2.2.2
+faiss-cpu
+
+# CSV + file handling
+pandas
+
+# Streamlit UI
+streamlit
+
+# Useful utilities
+requests
