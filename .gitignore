@@ -1,0 +1,7 @@
+*.gguf
+__pycache__/
+*.faiss
+*.pkl
+*.txt
+*.json
+indexes/
