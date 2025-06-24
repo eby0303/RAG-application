@@ -1,16 +1,27 @@
-# Local LLM loading (Mistral, LLaMA, etc.)
+# Vector Search & NLP
+langchain
+chromadb
+faiss-cpu
+sentence-transformers
+
+# LLM Support
+transformers
+auto-gptq
+huggingface_hub
+torch
 llama-cpp-python
 
-# Retrieval-Augmented Generation (RAG)
-langchain
-sentence-transformers==2.2.2
-faiss-cpu
-
-# CSV + file handling
+# File handling
 pandas
+openpyxl
 
 # Streamlit UI
 streamlit
+streamlit-extras
 
-# Useful utilities
+# Utilities
 requests
+click
+
+# Fix protobuf
+protobuf==5.27.3
