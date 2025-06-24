@@ -1,8 +1,10 @@
 # Vector Search & NLP
 langchain
+langchain-community
 chromadb
 faiss-cpu
 sentence-transformers
+
 
 # LLM Support
 transformers
@@ -10,6 +12,7 @@ auto-gptq
 huggingface_hub
 torch
 llama-cpp-python
+
 
 # File handling
 pandas

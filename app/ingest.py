@@ -6,8 +6,9 @@ import click
 import torch
 from langchain.docstore.document import Document
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
-from utils import get_embeddings
+from langchain_community.vectorstores import Chroma
+
+from localgpt.utils import get_embeddings
 
 from constants import (
     CHROMA_SETTINGS,
@@ -19,8 +20,9 @@ from constants import (
 )
 
 import nltk
-nltk.download('punkt_tab')
-nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+
 
 def file_log(logentry):
     file1 = open("file_ingest.log", "a")
