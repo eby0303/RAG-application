@@ -1,0 +1,6 @@
+# localgpt/config.yaml
+model_name: models/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+
+embed_model: intfloat/e5-small-v2
+embedding_type: huggingface
+device_type: cpu

@@ -1,19 +1,24 @@
 # app/convert_csv_to_txt.py
 import os
 import pandas as pd
+from langchain.docstore.document import Document
 
-def convert_csv_to_txt(csv_folder="data/source_documents"):
-    for file in os.listdir(csv_folder):
-        if file.endswith(".csv"):
-            csv_path = os.path.join(csv_folder, file)
-            df = pd.read_csv(csv_path)
+def csv_to_documents(csv_path: str) -> list[Document]:
+    df = pd.read_csv(csv_path)
+    docs = []
 
-            txt_content = df.to_string(index=False)
-            txt_filename = file.replace(".csv", ".txt")
+    for index, row in df.iterrows():
+        content = row.to_string()
+        metadata = {"source": csv_path, "row": index}
+        docs.append(Document(page_content=content, metadata=metadata))
 
-            with open(os.path.join(csv_folder, txt_filename), "w", encoding="utf-8") as f:
-                f.write(txt_content)
-            print(f"Converted {file} to {txt_filename}")
+    return docs
 
-if __name__ == "__main__":
-    convert_csv_to_txt()
+def get_csv_docs_from_directory(source_dir: str) -> list[Document]:
+    docs = []
+    for root, _, files in os.walk(source_dir):
+        for file in files:
+            if file.endswith(".csv"):
+                csv_path = os.path.join(root, file)
+                docs.extend(csv_to_documents(csv_path))
+    return docs

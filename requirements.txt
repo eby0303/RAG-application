@@ -5,14 +5,10 @@ chromadb
 faiss-cpu
 sentence-transformers
 
-
 # LLM Support
 transformers
-auto-gptq
 huggingface_hub
 torch
-llama-cpp-python
-
 
 # File handling
 pandas
@@ -20,11 +16,10 @@ openpyxl
 
 # Streamlit UI
 streamlit
-streamlit-extras
 
 # Utilities
 requests
 click
 
-# Fix protobuf
+# Fix protobuf compatibility
 protobuf==5.27.3
