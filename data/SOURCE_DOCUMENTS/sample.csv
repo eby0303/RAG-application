@@ -1,4 +1,11 @@
-Name,Department,Salary
-Alice,Engineering,75000
-Bob,Marketing,60000
-Charlie,Sales,50000
+Name,Department,Salary,YearsExperience,Location
+Alice,Engineering,75000,5,New York
+Bob,Marketing,60000,3,San Francisco
+Charlie,Sales,50000,4,Los Angeles
+Diana,Engineering,80000,6,Boston
+Ethan,HR,55000,2,Chicago
+Fiona,Marketing,62000,5,New York
+George,Engineering,70000,3,Chicago
+Hannah,Sales,65000,6,San Francisco
+Ivan,HR,58000,4,Los Angeles
+Julia,Finance,72000,7,Boston

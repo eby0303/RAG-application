@@ -3,12 +3,12 @@ import os
 import pandas as pd
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+from langchain.vectorstores import FAISS
 from app.utils import get_embeddings
 from localgpt.constants import CHUNK_SIZE, CHUNK_OVERLAP
 
-SOURCE_DIRECTORY = "data/SOURCE_DOCUMENTS"
-PERSIST_DIRECTORY = "db"
+SOURCE_DIRECTORY = "data/source_documents"
+PERSIST_DIRECTORY = "data/indexes"
 
 def load_csv_documents(source_dir):
     documents = []
@@ -27,12 +27,12 @@ def main():
     print(f"✅ Loaded {len(documents)} rows")
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-    texts = splitter.split_documents(documents)
-    print(f"📄 Split into {len(texts)} chunks")
+    text_chunks = splitter.split_documents(documents)
+    print(f"📄 Split into {len(text_chunks)} chunks")
 
     embeddings = get_embeddings()
-    vectordb = Chroma.from_documents(texts, embeddings, persist_directory=PERSIST_DIRECTORY)
-    vectordb.persist()
+    vectordb = FAISS.from_documents(documents=text_chunks, embedding=embeddings)
+    vectordb.save_local(PERSIST_DIRECTORY)
     print(f"✅ Embeddings stored at {PERSIST_DIRECTORY}")
 
 if __name__ == "__main__":

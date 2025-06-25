@@ -2,21 +2,24 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from langchain.chains import RetrievalQA
 from utils import get_embeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import FAISS
 from localgpt.load_models import load_model
 from localgpt.constants import PERSIST_DIRECTORY
 
 def ask_question(query: str) -> str:
     embeddings = get_embeddings()
-    vectordb = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embeddings)
+    vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings, allow_dangerous_deserialization=True)
     retriever = vectordb.as_retriever()
-    llm = load_model()
 
-    qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever, return_source_documents=False)
-    result = qa.run(query)
-    return result
+    docs = retriever.get_relevant_documents(query)
+    context = "\n\n".join([doc.page_content for doc in docs])
+
+    full_prompt = f"{context}\n\n{query}"
+
+    llm = load_model()
+    response = llm.invoke(full_prompt)
+    return response
 
 # For CLI use (optional)
 def main():
