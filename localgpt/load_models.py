@@ -13,7 +13,7 @@ def load_model():
         temperature=0.2,
         top_p=0.95,
         repeat_penalty=1.1,
-        n_threads=4,  # Set lower if you're on a low-end CPU
+        n_threads=3,  # Set lower if you're on a low-end CPU
         verbose=True,
         streaming=False
     )

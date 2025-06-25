@@ -10,7 +10,7 @@ from localgpt.constants import PERSIST_DIRECTORY
 def ask_question(query: str) -> str:
     embeddings = get_embeddings()
     vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings, allow_dangerous_deserialization=True)
-    retriever = vectordb.as_retriever()
+    retriever = vectordb.as_retriever(search_type="similarity", search_kwargs={"k": 20})
 
     docs = retriever.get_relevant_documents(query)
     context = "\n\n".join([doc.page_content for doc in docs])
