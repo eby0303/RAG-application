@@ -6,3 +6,5 @@ __pycache__/
 *.json
 indexes/
 venv/
+local_e5_model/
+models/

@@ -6,7 +6,7 @@ from app.run_localGPT import ask_question
 
 st.set_page_config(page_title="Chat with CSV", layout="wide")
 
-st.title("📊 Chat with Your CSV Files")
+st.title("Chat with Your CSV")
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
