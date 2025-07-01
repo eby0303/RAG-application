@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import shutil
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
@@ -21,7 +22,6 @@ def load_csv_documents(source_dir):
     for file_name in os.listdir(source_dir):
         if file_name.endswith(".csv"):
             df = pd.read_csv(os.path.join(source_dir, file_name))
-            rows_as_sentences = []
 
             for _, row in df.iterrows():
                 circle_code = row["circle"]
@@ -31,32 +31,35 @@ def load_csv_documents(source_dir):
                 att = row["att_sub"]
                 iso_date = row["date"]
 
-                # Calculated metrics
-                attach_rate = att / act if act else 0
-                active_rate = act / prov if prov else 0
-
                 dt = pd.to_datetime(iso_date)
                 readable_date = dt.strftime("%B %d, %Y")
 
                 sentence = (
                     f"On {readable_date} (i.e., {iso_date}), in {circle_name} (circle code: {circle_code}), "
-                    f"there were {prov} provisioned subscribers, {act} active subscribers, and {att} attached subscribers, "
-                    f"with an attach rate of {attach_rate:.1%} and an active rate of {active_rate:.1%}."
+                    f"there were {prov} prov_sub, {act} act_sub, and {att} att_sub."
                 )
-                rows_as_sentences.append(sentence)
 
-            full_doc = "\n".join(rows_as_sentences)
-            documents.append(Document(page_content=full_doc, metadata={"source": file_name}))
+                #  One row = one Document
+                documents.append(Document(page_content=sentence, metadata={
+                    "circle_code": circle_code,
+                    "circle_name": circle_name,
+                    "date": iso_date,
+                    "source": file_name
+                }))
 
     return documents
 
+
 def update_faiss():
+    if os.path.exists(PERSIST_DIRECTORY):
+        shutil.rmtree(PERSIST_DIRECTORY)
+        print(f"🧹 Old FAISS index at {PERSIST_DIRECTORY} removed")
+
     print(f"\U0001F4C2 Loading CSV files from {SOURCE_DIRECTORY}")
     documents = load_csv_documents(SOURCE_DIRECTORY)
     print(f"✅ Loaded {len(documents)} documents")
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-    text_chunks = splitter.split_documents(documents)
+    text_chunks = documents 
     print(f"📄 Split into {len(text_chunks)} chunks")
 
     embeddings = get_embeddings()
