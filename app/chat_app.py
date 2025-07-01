@@ -1,3 +1,5 @@
+# app/chat_app.py
+
 import sys, os
 import json
 import re
@@ -5,30 +7,38 @@ import pandas as pd
 import streamlit as st
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from app.llama_utils import ask_question_llama
-
 
 from app.run_localGPT import ask_question
+from app.llama_utils import ask_question_llama
 from app import ingest
 
+st.set_page_config(page_title="Telecom Analytics", layout="wide")
 st.title("📊 Telecom Analytics Assistant")
-model_choice = st.radio("Choose Model", ["Local LLM", "Llama API"], horizontal=True)
 
+# --- Sidebar Filters ---
+st.sidebar.header("⚙️ Settings")
 
-if st.button("🔄 Update FAISS DB"):
-    with st.spinner("Re-indexing... this may take a few moments..."):
+# Retrieval chunk count
+k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, value=10)
+
+# LLM selection
+llm_option = st.sidebar.radio("Choose LLM:", options=["Local LLM", "Llama API"])
+
+# Update FAISS DB
+if st.sidebar.button("🔄 Update FAISS Index"):
+    with st.spinner("Re-indexing... Please wait..."):
         ingest.update_faiss()
-    st.success("FAISS DB updated successfully!")
+    st.sidebar.success("✅ FAISS index updated!")
 
-user_prompt = st.text_input("Ask your question:", placeholder="e.g., Show trends in MH for June 2025")
+# --- Main Input ---
+user_prompt = st.text_input("Ask your question:", placeholder="e.g., Compare MH and KL for June 2025")
 
 if user_prompt:
     with st.spinner("🔍 Thinking..."):
-        if model_choice == "Local LLM":
+        if llm_option == "Local LLM":
             parsed, retrieved_docs = ask_question(user_prompt)
         else:
-            parsed, retrieved_docs = ask_question_llama(user_prompt)
-
+            parsed, retrieved_docs = ask_question_llama(user_prompt, k=k_val)
 
     if parsed is None:
         st.error("❌ Could not extract valid JSON from LLM response.")
@@ -37,61 +47,80 @@ if user_prompt:
     st.subheader("📈 Analysis")
     st.write(parsed["analysis"])
 
-    # Show chart only if flagged
+    # Show chart if needed
     if parsed.get("show_chart", False):
-        # Read source data
-        df = pd.concat([
-            pd.read_csv(f"data/source_documents/{f}")
-            for f in os.listdir("data/source_documents") if f.endswith(".csv")
-        ])
-        df["date"] = pd.to_datetime(df["date"])
+        charts = parsed.get("charts", [])
+        for chart in charts:
+            st.subheader(f"📉 {chart.get('title', 'Chart')}")
 
-        region = parsed.get("region")
-        metrics = parsed.get("metrics", [])
-        chart_type = parsed.get("chart_type")
-        start_date, end_date = pd.to_datetime(parsed["date_range"][0]), pd.to_datetime(parsed["date_range"][1])
+            chart_type = chart.get("chart_type", "line")
+            x_axis = chart.get("x_axis", "date")
+            y_axis = chart.get("y_axis", "value")
 
-        chart_df = df[(df["circle"] == region) & (df["date"].between(start_date, end_date))]
-        chart_df = chart_df.sort_values("date")
+            region_dataframes = []
 
-        st.subheader("📉 Suggested Chart")
-        if metrics:
-            chart_data = chart_df[["date"] + metrics].set_index("date")
+            for region, dates in chart["series"].items():
+                values = chart["values"].get(region, [])
+                
+                if not dates:
+                    continue
 
+                # If values are shorter than dates, pad with 0s
+                if len(values) < len(dates):
+                    values += [0] * (len(dates) - len(values))
+
+                # Align values to dates (shortest length to be safe)
+                aligned = list(zip(dates, values))
+                df = pd.DataFrame(aligned, columns=[x_axis, region])
+                df[x_axis] = pd.to_datetime(df[x_axis], errors="coerce")  # handle any "null"
+                df.dropna(inplace=True)  # drop any rows with invalid date
+                df.set_index(x_axis, inplace=True)
+                region_dataframes.append(df)
+
+            if region_dataframes:
+                chart_df = pd.concat(region_dataframes, axis=1)
+            # Plot
             if chart_type == "line":
-                st.line_chart(chart_data)
+                st.line_chart(chart_df)
             elif chart_type == "bar":
-                st.bar_chart(chart_data)
+                st.bar_chart(chart_df)
             elif chart_type == "area":
-                st.area_chart(chart_data)
+                st.area_chart(chart_df)
             else:
-                st.warning("Unsupported chart type returned by the model.")
-        else:
-            st.warning("⚠️ No metrics provided for chart.")
-        
-        # KPI Summary
-        if "kpi_summary" not in parsed:
-            kpi_summary = {}
-            for metric in metrics:
-                kpi_summary[metric] = {
-                    "min": float(chart_df[metric].min()),
-                    "max": float(chart_df[metric].max()),
-                    "mean": float(chart_df[metric].mean())
-                }
-        else:
-            kpi_summary = parsed["kpi_summary"]
-
-        st.subheader("📊 KPI Summary")
-        st.json(kpi_summary)    
+                st.warning("⚠️ Unsupported chart type.")
 
     else:
         st.info("ℹ️ No chart was requested by the LLM for this query.")
-        
 
-    # 💡 Insights section
-    if "insights" in parsed and isinstance(parsed["insights"], list):
+    # KPI Summary per region
+    kpis = parsed.get("kpi_summary", {})
+    if kpis:
+        st.subheader("📊 KPI Summary")
+        for region, metrics in kpis.items():
+            st.markdown(f"**🔸 {region}**")
+            st.json(metrics)
+
+    # Insights Section
+    insights = parsed.get("insights", {})
+    if isinstance(insights, dict):
+        individual = insights.get("individual", {})
+        collective = insights.get("collective", [])
+
+        if individual:
+            st.subheader("💡 Regional Insights")
+            for region, region_insights in individual.items():
+                st.markdown(f"**📍 {region}**")
+                for i, insight in enumerate(region_insights, 1):
+                    st.markdown(f"- {insight}")
+
+        if collective:
+            st.subheader("🌐 Collective Insights")
+            for i, insight in enumerate(collective, 1):
+                st.markdown(f"- {insight}")
+
+    elif isinstance(insights, list):  # fallback if it's still a list
         st.subheader("💡 Insights")
-        for idx, insight in enumerate(parsed["insights"], 1):
+        for i, insight in enumerate(insights, 1):
             st.markdown(f"- {insight}")
 
     with st.expander("📄 Retrieved Context"):
