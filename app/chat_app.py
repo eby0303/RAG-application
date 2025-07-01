@@ -5,11 +5,15 @@ import pandas as pd
 import streamlit as st
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from app.llama_utils import ask_question_llama
+
 
 from app.run_localGPT import ask_question
 from app import ingest
 
 st.title("📊 Telecom Analytics Assistant")
+model_choice = st.radio("Choose Model", ["Local LLM", "Llama API"], horizontal=True)
+
 
 if st.button("🔄 Update FAISS DB"):
     with st.spinner("Re-indexing... this may take a few moments..."):
@@ -20,7 +24,11 @@ user_prompt = st.text_input("Ask your question:", placeholder="e.g., Show trends
 
 if user_prompt:
     with st.spinner("🔍 Thinking..."):
-        parsed, retrieved_docs = ask_question(user_prompt)
+        if model_choice == "Local LLM":
+            parsed, retrieved_docs = ask_question(user_prompt)
+        else:
+            parsed, retrieved_docs = ask_question_llama(user_prompt)
+
 
     if parsed is None:
         st.error("❌ Could not extract valid JSON from LLM response.")

@@ -16,6 +16,7 @@ CIRCLE_CODE_TO_NAME = {
     "UE": "Uttar Pradesh (East)", "UW": "Uttar Pradesh (West)"
 }
 
+
 def load_csv_documents(source_dir):
     documents = []
 
