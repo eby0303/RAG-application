@@ -1,5 +1,4 @@
 # app/run_localGPT.py
-
 from langchain_community.vectorstores import FAISS
 from app.utils import load_model, get_embeddings
 from localgpt.constants import PERSIST_DIRECTORY
@@ -60,7 +59,7 @@ def ask_question(query: str):
       "insights": ["Insight"]
     }}
     
-    REMEMBER TO PROVIDE A COMPLETE JSON
+    REMEMBER TO PROVIDE ONLY A COMPLETE JSON AND NO EXPLANATION OR COMMENTS WITH IT
     """.strip()
 
     print(f"\n=== Prompt to LLM ===\n{full_prompt}\n")

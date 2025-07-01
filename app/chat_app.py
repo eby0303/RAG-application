@@ -26,8 +26,6 @@ if user_prompt:
         st.error("❌ Could not extract valid JSON from LLM response.")
         st.stop()
 
-
-    # ✅ Valid JSON at this point
     st.subheader("📈 Analysis")
     st.write(parsed["analysis"])
 
@@ -48,21 +46,6 @@ if user_prompt:
         chart_df = df[(df["circle"] == region) & (df["date"].between(start_date, end_date))]
         chart_df = chart_df.sort_values("date")
 
-        # 📊 KPI Summary fallback
-        if "kpi_summary" not in parsed:
-            kpi_summary = {}
-            for metric in metrics:
-                kpi_summary[metric] = {
-                    "min": float(chart_df[metric].min()),
-                    "max": float(chart_df[metric].max()),
-                    "mean": float(chart_df[metric].mean())
-                }
-        else:
-            kpi_summary = parsed["kpi_summary"]
-
-        st.subheader("📊 KPI Summary")
-        st.json(kpi_summary)
-
         st.subheader("📉 Suggested Chart")
         if metrics:
             chart_data = chart_df[["date"] + metrics].set_index("date")
@@ -77,9 +60,25 @@ if user_prompt:
                 st.warning("Unsupported chart type returned by the model.")
         else:
             st.warning("⚠️ No metrics provided for chart.")
+        
+        # KPI Summary
+        if "kpi_summary" not in parsed:
+            kpi_summary = {}
+            for metric in metrics:
+                kpi_summary[metric] = {
+                    "min": float(chart_df[metric].min()),
+                    "max": float(chart_df[metric].max()),
+                    "mean": float(chart_df[metric].mean())
+                }
+        else:
+            kpi_summary = parsed["kpi_summary"]
+
+        st.subheader("📊 KPI Summary")
+        st.json(kpi_summary)    
 
     else:
         st.info("ℹ️ No chart was requested by the LLM for this query.")
+        
 
     # 💡 Insights section
     if "insights" in parsed and isinstance(parsed["insights"], list):
