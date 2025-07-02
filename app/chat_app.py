@@ -31,9 +31,11 @@ if st.sidebar.button("🔄 Update FAISS Index"):
     st.sidebar.success("✅ FAISS index updated!")
 
 # --- Main Input ---
-user_prompt = st.text_input("Ask your question:", placeholder="e.g., Compare MH and KL for June 2025")
+with st.form("user_query_form"):
+    user_prompt = st.text_input("Ask your question:", placeholder="e.g., Compare MH and KL for June 2025")
+    submitted = st.form_submit_button("Submit")
 
-if user_prompt:
+if submitted and user_prompt:
     with st.spinner("🔍 Thinking..."):
         if llm_option == "Local LLM":
             parsed, retrieved_docs = ask_question(user_prompt)

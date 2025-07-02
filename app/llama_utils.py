@@ -74,7 +74,7 @@ def ask_question_llama(query: str, k: int):
             "region_name_1": ["YYYY-MM-DD", ...], #series should be a dictionary of region → list of dates.
             "region_name_2": ["YYYY-MM-DD", ...]
         }},
-        "values": {{
+        "values": {{ 
             "region_name_1": [val1, val2, ...], #values should be list of numbers (for that one metric only)
             "region_name_2": [val1, val2, ...]
         }}
