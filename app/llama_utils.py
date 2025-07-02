@@ -15,9 +15,7 @@ load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  
 HEADERS = {
     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "Content-Type": "application/json",
-    "HTTP-Referer": "http://localhost",  # Optional
-    "X-Title": "Telecom-RAG-App"         # Optional
+    "Content-Type": "application/json",     
 }
 LLAMA_MODEL = "meta-llama/llama-3.1-8b-instruct:free"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -75,7 +73,7 @@ def ask_question_llama(query: str, k: int):
         "x_axis": "date",
         "y_axis": "metric_name",
         "series": {{
-            "region_name_1": ["YYYY-MM-DD", ...], #series should be a dictionary of region → list of dates.
+            "region_name_1": ["YYYY-MM-DD", ...], #series should be a dictionary of region -> list of dates.
             "region_name_2": ["YYYY-MM-DD", ...]
         }},
         "values": {{ 

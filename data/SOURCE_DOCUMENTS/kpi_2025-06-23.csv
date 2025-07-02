@@ -1,4 +1,4 @@
-circle,date,4g_throughput,5g_throughput,cssr,dsr
+circle,date,4g_throughput,5g_throughput,cssr,dcr
 AP,2025-06-23,21.83,100.56,96.32,98.15
 AS,2025-06-23,18.97,66.92,98.08,96.69
 BH,2025-06-23,23.62,110.63,99.22,95.13
