@@ -32,13 +32,23 @@ def extract_json(text: str):
         print(f"❌ Error extracting JSON: {e}")
     return None
 
+def format_context_with_metadata(docs):
+    formatted_chunks = []
+    for doc in docs:
+        meta = doc.metadata
+        meta_str = ", ".join(f"{k}: {v}" for k, v in meta.items())
+        chunk = f"[Metadata: {meta_str}]\n{doc.page_content.strip()}"
+        formatted_chunks.append(chunk)
+    return "\n\n".join(formatted_chunks)
+
 def ask_question_llama(query: str, k: int):
     embeddings = get_embeddings()
     vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings, allow_dangerous_deserialization=True)
     retriever = vectordb.as_retriever(search_kwargs={"k": k})
     docs = retriever.get_relevant_documents(query)
 
-    context = "\n".join(doc.page_content.strip() for doc in docs if doc.page_content.strip())
+    
+    context = format_context_with_metadata(docs)
 
     prompt = f"""
     You are a telecom analyst. Based on the data below, answer the user's question by returning only valid JSON.
@@ -49,15 +59,9 @@ def ask_question_llama(query: str, k: int):
     User question:
     {query}
 
-    Available metrics:
-    - prov_sub (provisioned subscribers)
-    - act_sub (active subscribers)
-    - att_sub (attached subscribers)
-
     If asked to compare multiple regions, include multiple region names.
     If analyzing a single region, do not repeat the same region name multiple times in 'series' and 'values'.
     Ensure that all keys in 'series' and 'values' are unique and match valid region codes only once.
-
 
     Respond ONLY in this JSON format:
 
@@ -80,18 +84,6 @@ def ask_question_llama(query: str, k: int):
         }}
         }}
     ],
-    "kpi_summary": {{
-        "region_name_1": {{
-        "prov_sub": {{"min": 12345, "max": 23456, "mean": 19000.5}},
-        "act_sub": {{"min": 10000, "max": 21000, "mean": 17000.0}},
-        "att_sub": {{"min": 12345, "max": 23456, "mean": 19000.5}}
-        }},
-        "region_name_2": {{
-        "prov_sub": {{...}},
-        "act_sub": {{...}},
-        "att_sub": {{...}}
-        }}
-    }},
     "insights": {{
         "individual": {{
         "region_name_1": ["insight1", "insight2"], #provide insights for each region only no comparison here
@@ -124,3 +116,24 @@ def ask_question_llama(query: str, k: int):
     except requests.exceptions.RequestException as e:
         print(f"❌ Error from OpenRouter API: {e} - {response.text}")
         return None, docs
+
+
+
+
+
+
+
+
+
+    # "kpi_summary": {{
+    #     "region_name_1": {{
+    #     "prov_sub": {{"min": 12345, "max": 23456, "mean": 19000.5}},
+    #     "act_sub": {{"min": 10000, "max": 21000, "mean": 17000.0}},
+    #     "att_sub": {{"min": 12345, "max": 23456, "mean": 19000.5}}
+    #     }},
+    #     "region_name_2": {{
+    #     "prov_sub": {{...}},
+    #     "act_sub": {{...}},
+    #     "att_sub": {{...}}
+    #     }}
+    # }},

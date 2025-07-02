@@ -45,7 +45,10 @@ def load_csv_documents(source_dir):
                     "circle_code": circle_code,
                     "circle_name": circle_name,
                     "date": iso_date,
-                    "source": file_name
+                    "source": file_name,
+                    "prov_sub": "provisioned subscribers",
+                    "act_sub": "active subscribers",
+                    "att_sub": "attached subscribers"
                 }))
 
     return documents

@@ -19,10 +19,10 @@ st.title("📊 Telecom Analytics Assistant")
 st.sidebar.header("⚙️ Settings")
 
 # Retrieval chunk count
-k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, value=10)
+k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, value=5)
 
 # LLM selection
-llm_option = st.sidebar.radio("Choose LLM:", options=["Local LLM", "Llama API"])
+llm_option = st.sidebar.radio("Choose LLM:", options=["Llama API", "Local LLM"])
 
 # Update FAISS DB
 if st.sidebar.button("🔄 Update FAISS Index"):
@@ -95,12 +95,12 @@ if submitted and user_prompt:
         st.info("ℹ️ No chart was requested by the LLM for this query.")
 
     # KPI Summary per region
-    kpis = parsed.get("kpi_summary", {})
-    if kpis:
-        st.subheader("📊 KPI Summary")
-        for region, metrics in kpis.items():
-            st.markdown(f"**🔸 {region}**")
-            st.json(metrics)
+    # kpis = parsed.get("kpi_summary", {})
+    # if kpis:
+    #     st.subheader("📊 KPI Summary")
+    #     for region, metrics in kpis.items():
+    #         st.markdown(f"**🔸 {region}**")
+    #         st.json(metrics)
 
     # Insights Section
     insights = parsed.get("insights", {})
