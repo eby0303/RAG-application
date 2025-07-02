@@ -21,7 +21,7 @@ def load_document_batch(filepaths: list[str]) -> tuple[list[Document], list[str]
                         metadata = {"source": path, "row": idx}
                         all_docs.append(Document(page_content=content, metadata=metadata))
             except Exception as e:
-                print(f"❌ Failed to read CSV: {path} — {e}")
+                print(f" Failed to read CSV: {path} — {e}")
                 failed_files.append(path)
         else:
             failed_files.append(path)

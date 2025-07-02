@@ -27,7 +27,7 @@ def extract_json(text: str):
             cleaned = json_candidate.group().strip("`").strip()
             return json.loads(cleaned)
     except Exception as e:
-        print(f"❌ Error extracting JSON: {e}")
+        print(f"Error extracting JSON: {e}")
     return None
 
 def format_context_with_metadata(docs):
@@ -112,7 +112,7 @@ def ask_question_llama(query: str, k: int):
         json_data = extract_json(reply)
         return json_data, docs
     except requests.exceptions.RequestException as e:
-        print(f"❌ Error from OpenRouter API: {e} - {response.text}")
+        print(f"Error from OpenRouter API: {e} - {response.text}")
         return None, docs
 
 

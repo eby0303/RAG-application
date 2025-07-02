@@ -13,10 +13,10 @@ from app.llama_utils import ask_question_llama
 from app import ingest
 
 st.set_page_config(page_title="Telecom Analytics", layout="wide")
-st.title("📊 Telecom Analytics Assistant")
+st.title("Telecom Analytics Assistant")
 
 # --- Sidebar Filters ---
-st.sidebar.header("⚙️ Settings")
+st.sidebar.header(" Settings")
 
 # Retrieval chunk count
 k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, value=5)
@@ -25,10 +25,10 @@ k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, v
 llm_option = st.sidebar.radio("Choose LLM:", options=["Llama API", "Local LLM"])
 
 # Update FAISS DB
-if st.sidebar.button("🔄 Update FAISS Index"):
+if st.sidebar.button(" Update FAISS Index"):
     with st.spinner("Re-indexing... Please wait..."):
         ingest.update_faiss()
-    st.sidebar.success("✅ FAISS index updated!")
+    st.sidebar.success(" FAISS index updated!")
 
 # --- Main Input ---
 with st.form("user_query_form"):
@@ -36,24 +36,24 @@ with st.form("user_query_form"):
     submitted = st.form_submit_button("Submit")
 
 if submitted and user_prompt:
-    with st.spinner("🔍 Thinking..."):
+    with st.spinner(" Thinking..."):
         if llm_option == "Local LLM":
             parsed, retrieved_docs = ask_question(user_prompt)
         else:
             parsed, retrieved_docs = ask_question_llama(user_prompt, k=k_val)
 
     if parsed is None:
-        st.error("❌ Could not extract valid JSON from LLM response.")
+        st.error(" Could not extract valid JSON from LLM response.")
         st.stop()
 
-    st.subheader("📈 Analysis")
+    st.subheader(" Analysis")
     st.write(parsed["analysis"])
 
     # Show chart if needed
     if parsed.get("show_chart", False):
         charts = parsed.get("charts", [])
         for chart in charts:
-            st.subheader(f"📉 {chart.get('title', 'Chart')}")
+            st.subheader(f" {chart.get('title', 'Chart')}")
 
             chart_type = chart.get("chart_type", "line")
             x_axis = chart.get("x_axis", "date")
@@ -89,15 +89,15 @@ if submitted and user_prompt:
             elif chart_type == "area":
                 st.area_chart(chart_df)
             else:
-                st.warning("⚠️ Unsupported chart type.")
+                st.warning(" Unsupported chart type.")
 
     else:
-        st.info("ℹ️ No chart was requested by the LLM for this query.")
+        st.info("ℹ No chart was requested by the LLM for this query.")
 
     # KPI Summary per region
     # kpis = parsed.get("kpi_summary", {})
     # if kpis:
-    #     st.subheader("📊 KPI Summary")
+    #     st.subheader(" KPI Summary")
     #     for region, metrics in kpis.items():
     #         st.markdown(f"**🔸 {region}**")
     #         st.json(metrics)
@@ -109,22 +109,22 @@ if submitted and user_prompt:
         collective = insights.get("collective", [])
 
         if individual:
-            st.subheader("💡 Regional Insights")
+            st.subheader(" Regional Insights")
             for region, region_insights in individual.items():
-                st.markdown(f"**📍 {region}**")
+                st.markdown(f"** {region}**")
                 for i, insight in enumerate(region_insights, 1):
                     st.markdown(f"- {insight}")
 
         if collective:
-            st.subheader("🌐 Collective Insights")
+            st.subheader(" Collective Insights")
             for i, insight in enumerate(collective, 1):
                 st.markdown(f"- {insight}")
 
     elif isinstance(insights, list):  # fallback if it's still a list
-        st.subheader("💡 Insights")
+        st.subheader(" Insights")
         for i, insight in enumerate(insights, 1):
             st.markdown(f"- {insight}")
 
-    with st.expander("📄 Retrieved Context"):
+    with st.expander(" Retrieved Context"):
         for i, doc in enumerate(retrieved_docs):
             st.markdown(f"**Chunk {i+1}:**\n{doc.page_content}\n")

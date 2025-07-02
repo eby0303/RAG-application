@@ -26,7 +26,7 @@ def get_common_metadata(source_dir):
                 with open(os.path.join(source_dir, file), "r") as f:
                     loaded_metadata[prefix] = json.load(f)
             except Exception as e:
-                print(f"❌ Failed to load metadata from {file}: {e}")
+                print(f"Failed to load metadata from {file}: {e}")
     return loaded_metadata
 
 def load_csv_documents(source_dir=SOURCE_DIRECTORY):
@@ -81,16 +81,16 @@ def load_csv_documents(source_dir=SOURCE_DIRECTORY):
 def update_faiss():
     if os.path.exists(PERSIST_DIRECTORY):
         shutil.rmtree(PERSIST_DIRECTORY)
-        print(f"🧹 Old FAISS index at {PERSIST_DIRECTORY} removed")
+        print(f"Old FAISS index at {PERSIST_DIRECTORY} removed")
 
-    print(f"📂 Loading CSV files from {SOURCE_DIRECTORY}")
+    print(f"Loading CSV files from {SOURCE_DIRECTORY}")
     documents = load_csv_documents(SOURCE_DIRECTORY)
-    print(f"✅ Loaded {len(documents)} documents")
+    print(f"Loaded {len(documents)} documents")
 
     embeddings = get_embeddings()
     vectordb = FAISS.from_documents(documents, embedding=embeddings)
     vectordb.save_local(PERSIST_DIRECTORY)
-    print(f"✅ FAISS DB saved at {PERSIST_DIRECTORY}")
+    print(f"FAISS DB saved at {PERSIST_DIRECTORY}")
 
 def main():
     update_faiss()
