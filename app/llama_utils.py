@@ -15,9 +15,11 @@ load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  
 HEADERS = {
     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "Content-Type": "application/json",     
+    "Content-Type": "application/json",   
+    "HTTP-Referer": "http://localhost",  
+    "X-Title": "Telecom-RAG-App"   
 }
-LLAMA_MODEL = "meta-llama/llama-3.1-8b-instruct:free"
+LLAMA_MODEL = "meta-llama/llama-3.2-11b-vision-instruct:free"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def extract_json(text: str):
