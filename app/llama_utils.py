@@ -19,7 +19,7 @@ HEADERS = {
     "HTTP-Referer": "http://localhost",  
     "X-Title": "Telecom-RAG-App"   
 }
-LLAMA_MODEL = "meta-llama/llama-3.2-11b-vision-instruct:free"
+LLAMA_MODEL = "mistralai/mistral-small-3.2-24b-instruct:free"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def extract_json(text: str):
@@ -66,7 +66,7 @@ def ask_question_llama(query: str, k: int):
     Respond ONLY in this JSON format:
 
     {{
-    "analysis": "Your overall comparative analysis here.",
+    "analysis_md": "Markdown-formatted analysis section.",
     "show_chart": true,
     "charts": [
         {{
@@ -84,18 +84,10 @@ def ask_question_llama(query: str, k: int):
         }}
         }}
     ],
-    "insights": {{
-        "individual": {{
-        "region_name_1": ["insight1", "insight2"], #provide insights for each region only no comparison here
-        "region_name_2": ["insight1", "insight2"]
-        }},
-        "collective": [
-        "comparison insight 1", #provide insights for all regions here
-        "comparison insight 2"
-        ]
+    "insights_md": "Markdown-formatted insights (both individual and comparative, free-form)."
     }}
     }}
-
+    Use proper Markdown syntax for analysis_md and insights_md. You may use headings, bold, bullet points, or even tables.
     REMEMBER: Return only valid JSON. No COMMENTS or EXPLANATIONS outside or inside the JSON. Never include trailing commas.
     """.strip()
 
@@ -116,24 +108,3 @@ def ask_question_llama(query: str, k: int):
     except requests.exceptions.RequestException as e:
         print(f"Error from OpenRouter API: {e} - {response.text}")
         return None, docs
-
-
-
-
-
-
-
-
-
-    # "kpi_summary": {{
-    #     "region_name_1": {{
-    #     "prov_sub": {{"min": 12345, "max": 23456, "mean": 19000.5}},
-    #     "act_sub": {{"min": 10000, "max": 21000, "mean": 17000.0}},
-    #     "att_sub": {{"min": 12345, "max": 23456, "mean": 19000.5}}
-    #     }},
-    #     "region_name_2": {{
-    #     "prov_sub": {{...}},
-    #     "act_sub": {{...}},
-    #     "att_sub": {{...}}
-    #     }}
-    # }},

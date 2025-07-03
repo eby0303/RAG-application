@@ -46,8 +46,9 @@ if submitted and user_prompt:
         st.error(" Could not extract valid JSON from LLM response.")
         st.stop()
 
-    st.subheader(" Analysis")
-    st.write(parsed["analysis"])
+    if "analysis_md" in parsed:
+        st.subheader("📊 Analysis")
+        st.markdown(parsed["analysis_md"], unsafe_allow_html=True)
 
     # Show chart if needed
     if parsed.get("show_chart", False):
@@ -94,36 +95,10 @@ if submitted and user_prompt:
     else:
         st.info("ℹ No chart was requested by the LLM for this query.")
 
-    # KPI Summary per region
-    # kpis = parsed.get("kpi_summary", {})
-    # if kpis:
-    #     st.subheader(" KPI Summary")
-    #     for region, metrics in kpis.items():
-    #         st.markdown(f"**🔸 {region}**")
-    #         st.json(metrics)
-
-    # Insights Section
-    insights = parsed.get("insights", {})
-    if isinstance(insights, dict):
-        individual = insights.get("individual", {})
-        collective = insights.get("collective", [])
-
-        if individual:
-            st.subheader(" Regional Insights")
-            for region, region_insights in individual.items():
-                st.markdown(f"** {region}**")
-                for i, insight in enumerate(region_insights, 1):
-                    st.markdown(f"- {insight}")
-
-        if collective:
-            st.subheader(" Collective Insights")
-            for i, insight in enumerate(collective, 1):
-                st.markdown(f"- {insight}")
-
-    elif isinstance(insights, list):  # fallback if it's still a list
-        st.subheader(" Insights")
-        for i, insight in enumerate(insights, 1):
-            st.markdown(f"- {insight}")
+    # Markdown-based insights
+    if "insights_md" in parsed:
+        st.subheader("💡 Insights")
+        st.markdown(parsed["insights_md"], unsafe_allow_html=True)
 
     with st.expander(" Retrieved Context"):
         for i, doc in enumerate(retrieved_docs):
