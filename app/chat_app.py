@@ -26,7 +26,7 @@ st.title("Telecom Analytics Assistant")
 st.sidebar.header(" Settings")
 
 # Retrieval chunk count
-k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, value=5)
+k_val = st.sidebar.slider("Chunks to retrieve (k)", min_value=1, max_value=20, value=10)
 
 # LLM selection
 llm_option = st.sidebar.radio("Choose LLM:", options=["Llama API", "Local LLM"])
