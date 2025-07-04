@@ -52,7 +52,6 @@ def ask_question_llama(query: str, k: int):
     vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings, allow_dangerous_deserialization=True)
     retriever = vectordb.as_retriever(search_kwargs={"k": k})
     docs = retriever.get_relevant_documents(query)
-
     
     context = format_context_with_metadata(docs)
 

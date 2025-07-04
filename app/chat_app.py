@@ -61,7 +61,7 @@ if submitted and user_prompt:
     if parsed.get("show_chart", False):
         charts = parsed.get("charts", [])
         for chart in charts:
-            st.subheader(chart.get("title", "📈 Chart"))
+            st.subheader(chart.get("title", "Chart"))
 
             chart_type = chart.get("chart_type", "line")
             x_axis = chart.get("x_axis", "x")
@@ -85,10 +85,9 @@ if submitted and user_prompt:
                 elif len(y_vals) > len(x_vals):
                     y_vals = y_vals[:len(x_vals)]
 
-                # Build DataFrame
                 df = pd.DataFrame({x_axis: x_vals, label: y_vals})
 
-                # Check if x-axis values look like dates
+                # if x-axis values look like dates
                 if is_date_like(x_vals[0]):
                     auto_detect_dates = True
                     df[x_axis] = pd.to_datetime(df[x_axis], errors="coerce")
@@ -110,11 +109,10 @@ if submitted and user_prompt:
                 elif chart_type == "scatter":
                     st.scatter_chart(chart_df)
                 else:
-                    st.warning(f"⚠ Unsupported chart type: {chart_type}")
+                    st.warning(f"Unsupported chart type: {chart_type}")
             else:
-                st.info("ℹ No valid series data to render chart.")
-    else:
-        st.info("ℹ No chart was requested by the LLM.")
+                st.info("No valid series data to render chart.")
+
 
     # Markdown-based insights
     if "insights_md" in parsed:
