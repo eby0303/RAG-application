@@ -24,10 +24,16 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def extract_json(text: str):
     try:
+        # Extract the first JSON block between braces
         json_candidate = re.search(r'\{.*\}', text.strip(), re.DOTALL)
-        if json_candidate:
-            cleaned = json_candidate.group().strip("`").strip()
-            return json.loads(cleaned)
+        if not json_candidate:
+            print("No JSON-like content found.")
+            return None
+        # Clean leading/trailing backticks and whitespace
+        cleaned = json_candidate.group().strip("` \n")
+        # Escape unescaped backslashes (e.g., in LaTeX or Markdown)
+        cleaned = re.sub(r'(?<!\\)\\(?![\\/"bfnrtu])', r'\\\\', cleaned)
+        return json.loads(cleaned)
     except Exception as e:
         print(f"Error extracting JSON: {e}")
     return None
@@ -51,17 +57,13 @@ def ask_question_llama(query: str, k: int):
     context = format_context_with_metadata(docs)
 
     prompt = f"""
-    You are a telecom analyst. Based on the data below, answer the user's question by returning only valid JSON.
+    You are a telecom data analyst. Based on the data below, answer the user's question by returning only valid JSON. Ensure your analysis is accurate, concise, and tailored to the user's intent. Use appropriate metrics, comparisons, summaries, and visual cues where applicable.
 
     Context:
     {context}
 
     User question:
     {query}
-
-    If asked to compare multiple regions, include multiple region names.
-    If analyzing a single region, do not repeat the same region name multiple times in 'series' and 'values'.
-    Ensure that all keys in 'series' and 'values' are unique and match valid region codes only once.
 
     Respond ONLY in this JSON format:
 
@@ -72,24 +74,35 @@ def ask_question_llama(query: str, k: int):
         {{
         "title": "Your Chart Title",
         "chart_type": "line" or "bar" or "area",
-        "x_axis": "date",
-        "y_axis": "metric_name",
+        "x_axis": "x-axis label (e.g., date, region, etc)",
+        "y_axis": "y-axis label (metric name)",
         "series": {{
-            "region_name_1": ["YYYY-MM-DD", ...], #series should be a dictionary of region -> list of dates.
-            "region_name_2": ["YYYY-MM-DD", ...]
+            "label_1": [x1, x2, x3, ...],  # could be dates, categories, metrics, etc. defines the x-axis values for each label/metric
+            "label_2": [x1, x2, x3, ...]   # Keys are labels that will appear in the chart legend
         }},
-        "values": {{ 
-            "region_name_1": [val1, val2, ...], #values should be list of numbers (for that one metric only)
-            "region_name_2": [val1, val2, ...]
-        }}
+        "values": {{
+            "label_1": [y1, y2, y3, ...], # 'values' provides the corresponding y-axis values for each label
+            "label_2": [y1, y2, y3, ...]  # Must match the length of the corresponding entry in 'series'
+        }},
+        "chart_analysis": "Brief explanation of trends, outliers, or comparisons based on the chart"
         }}
     ],
-    "insights_md": "Markdown-formatted insights (both individual and comparative, free-form)."
+    "insights_md": "Markdown-formatted insights (both individual and comparative, free-form). Use only if required"
     }}
-    }}
-    Use proper Markdown syntax for analysis_md and insights_md. You may use headings, bold, bullet points, or even tables.
-    REMEMBER: Return only valid JSON. No COMMENTS or EXPLANATIONS outside or inside the JSON. Never include trailing commas.
+
+    For the `analysis_md` and `insights_md` sections:
+    - Format your answer using **Markdown**
+    - Use **LaTeX** for mathematical expressions if deemed necessary (e.g., quartiles, IQR, mean, standard deviation)
+    - Use headings, bullet points, and readable formatting
+    - Escape all backslashes in LaTeX using double backslashes (\\\\)
+    - Use `$...$` for inline LaTeX
+    - Use `$$...$$` for block LaTeX
+
+    Overall note:
+    - Never include comments or explanations outside the JSON
+    - No trailing commas or invalid JSON
     """.strip()
+
 
     print(f"\n=== Prompt to LLM ===\n{prompt}\n")
 
