@@ -33,9 +33,9 @@ llm_option = st.sidebar.radio("Choose LLM:", options=["Llama API", "Local LLM"])
 
 # Update FAISS DB
 if st.sidebar.button(" Update FAISS Index"):
-    with st.spinner("Re-indexing... Please wait..."):
+    with st.sidebar.status("Re-indexing... Please wait...", state="running") as status:
         ingest.update_faiss()
-    st.sidebar.success(" FAISS index updated!")
+        status.update(label="FAISS index updated!", state="complete")
 
 # --- Main Input ---
 with st.form("user_query_form"):
