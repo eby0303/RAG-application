@@ -75,7 +75,7 @@ def ask_question_llama(query: str, k: int):
         "chart_type": "line" or "bar" or "area",
         "x_axis": "x-axis label (e.g., date, region, etc)",
         "y_axis": "y-axis label (metric name)",
-        "series": {{
+        "series": {{                       # label names should match for both series and values
             "label_1": [x1, x2, x3, ...],  # could be dates, categories, metrics, etc. defines the x-axis values for each label/metric
             "label_2": [x1, x2, x3, ...]   # Keys are labels that will appear in the chart legend
         }},

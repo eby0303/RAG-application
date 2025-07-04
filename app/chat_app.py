@@ -76,30 +76,31 @@ if submitted and user_prompt:
             for label, x_vals in series.items():
                 y_vals = values.get(label, [])
 
-                if not x_vals:
+                if not x_vals or not y_vals:
                     continue
 
-                # Align lengths
-                if len(y_vals) < len(x_vals):
-                    y_vals += [0] * (len(x_vals) - len(y_vals))
-                elif len(y_vals) > len(x_vals):
-                    y_vals = y_vals[:len(x_vals)]
+                min_len = min(len(x_vals), len(y_vals))
+                x_vals = x_vals[:min_len]
+                y_vals = y_vals[:min_len]
 
                 df = pd.DataFrame({x_axis: x_vals, label: y_vals})
 
-                # if x-axis values look like dates
                 if is_date_like(x_vals[0]):
                     auto_detect_dates = True
                     df[x_axis] = pd.to_datetime(df[x_axis], errors="coerce")
 
                 df.dropna(subset=[x_axis], inplace=True)
-                df.set_index(x_axis, inplace=True)
+                df.reset_index(drop=True, inplace=True)
                 all_dfs.append(df)
 
             if all_dfs:
-                chart_df = pd.concat(all_dfs, axis=1)
+                chart_df = all_dfs[0]
+                for df in all_dfs[1:]:
+                    chart_df = pd.merge(chart_df, df, on=x_axis, how="outer")
 
-                # Plot based on type
+                chart_df.set_index(x_axis, inplace=True)
+                chart_df.sort_index(inplace=True)
+
                 if chart_type == "line":
                     st.line_chart(chart_df)
                 elif chart_type == "bar":
@@ -121,7 +122,3 @@ if submitted and user_prompt:
     with st.expander(" Retrieved Context"):
         for i, doc in enumerate(retrieved_docs):
             st.markdown(f"**Chunk {i+1}:**\n{doc.page_content}\n")
-            
-            
-            
-            
