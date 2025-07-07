@@ -18,16 +18,24 @@ CIRCLE_CODE_TO_NAME = {
 }
 
 def get_common_metadata(source_dir):
-    loaded_metadata = {}
+    metadata_map = {}
+
     for file in os.listdir(source_dir):
         if file.endswith("_metadata.json"):
-            prefix = file.split("_metadata.json")[0].lower()
             try:
+                key = file.replace("_metadata.json", "").lower()
                 with open(os.path.join(source_dir, file), "r") as f:
-                    loaded_metadata[prefix] = json.load(f)
+                    metadata_map[key] = json.load(f)
             except Exception as e:
-                print(f"Failed to load metadata from {file}: {e}")
-    return loaded_metadata
+                print(f"Error reading metadata {file}: {e}")
+    return metadata_map
+
+def infer_metadata_for_file(file_name, metadata_map):
+    file_key = file_name.lower().replace(".csv", "")
+    for meta_key in metadata_map.keys():
+        if meta_key in file_key:
+            return metadata_map[meta_key]
+    return {}  
 
 def load_csv_documents(source_dir=SOURCE_DIRECTORY):
     documents = []
@@ -37,10 +45,11 @@ def load_csv_documents(source_dir=SOURCE_DIRECTORY):
         if not file_name.endswith(".csv"):
             continue
 
-        prefix = file_name.split("_")[0].lower()
-        field_metadata = metadata_map.get(prefix, {})
+        csv_path = os.path.join(source_dir, file_name)
+        df = pd.read_csv(csv_path)
 
-        df = pd.read_csv(os.path.join(source_dir, file_name))
+        # find matching metadata file
+        field_metadata = infer_metadata_for_file(file_name, metadata_map)
 
         for _, row in df.iterrows():
             circle_code = row.get("circle")
@@ -48,9 +57,11 @@ def load_csv_documents(source_dir=SOURCE_DIRECTORY):
             if not circle_code or not iso_date:
                 continue
 
-            circle_name = CIRCLE_CODE_TO_NAME.get(circle_code, circle_code)
-            dt = pd.to_datetime(iso_date)
-            readable_date = dt.strftime("%B %d, %Y")
+            circle_name = CIRCLE_CODE_TO_NAME.get(str(circle_code), str(circle_code))
+            try:
+                readable_date = pd.to_datetime(iso_date).strftime("%B %d, %Y")
+            except Exception:
+                readable_date = iso_date 
 
             stats = []
             field_descriptions = {}
@@ -71,10 +82,11 @@ def load_csv_documents(source_dir=SOURCE_DIRECTORY):
 
             doc_metadata = {
                 "source": file_name,
-                "fields": field_descriptions 
+                "fields": field_descriptions
             }
 
             documents.append(Document(page_content=sentence, metadata=doc_metadata))
+
     return documents
 
 def update_faiss():
