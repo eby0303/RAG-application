@@ -24,14 +24,11 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def extract_json(text: str):
     try:
-        # Extract the first JSON block between braces
         json_candidate = re.search(r'\{.*\}', text.strip(), re.DOTALL)
         if not json_candidate:
             print("No JSON-like content found.")
             return None
-        # Clean leading/trailing backticks and whitespace
         cleaned = json_candidate.group().strip("` \n")
-        # Escape unescaped backslashes (e.g., in LaTeX or Markdown)
         cleaned = re.sub(r'(?<!\\)\\(?![\\/"bfnrtu])', r'\\\\', cleaned)
         return json.loads(cleaned)
     except Exception as e:
@@ -72,7 +69,7 @@ def ask_question_llama(query: str, k: int):
     "charts": [
         {{
         "title": "Your Chart Title",
-        "chart_type": "line" or "bar" or "area",
+        "chart_type": "line" or "scatter" or "area", # whichever is appropriate
         "x_axis": "x-axis label (e.g., date, region, etc)",
         "y_axis": "y-axis label (metric name)",
         "series": {{                       # label names should match for both series and values
