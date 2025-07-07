@@ -7,14 +7,11 @@ import re
 
 def extract_json(text: str):
     try:
-        # Extract the first JSON block between braces
         json_candidate = re.search(r'\{.*\}', text.strip(), re.DOTALL)
         if not json_candidate:
             print("No JSON-like content found.")
             return None
-        # Clean leading/trailing backticks and whitespace
         cleaned = json_candidate.group().strip("` \n")
-        # Escape unescaped backslashes (e.g., in LaTeX or Markdown)
         cleaned = re.sub(r'(?<!\\)\\(?![\\/"bfnrtu])', r'\\\\', cleaned)
         return json.loads(cleaned)
     except Exception as e:

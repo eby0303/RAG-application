@@ -112,7 +112,7 @@ if submitted and user_prompt:
                 else:
                     st.warning(f"Unsupported chart type: {chart_type}")
             else:
-                st.info("No valid series data to render chart.")
+                st.info("No data to render chart.")
 
 
     # Markdown-based insights

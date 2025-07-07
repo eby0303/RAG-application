@@ -75,7 +75,6 @@ def load_csv_documents(source_dir=SOURCE_DIRECTORY):
             }
 
             documents.append(Document(page_content=sentence, metadata=doc_metadata))
-
     return documents
 
 def update_faiss():
