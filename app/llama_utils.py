@@ -72,13 +72,13 @@ def ask_question_llama(query: str, k: int):
         "chart_type": "line" or "scatter" or "area", # whichever is appropriate
         "x_axis": "x-axis label (e.g., date, region, etc)",
         "y_axis": "y-axis label (metric name)",
-        "series": {{                       # label names should match for both series and values
+        "series": {{                      
             "label_1": [x1, x2, x3, ...],  # could be dates, categories, metrics, etc. defines the x-axis values for each label/metric
             "label_2": [x1, x2, x3, ...]   # Keys are labels that will appear in the chart legend
         }},
         "values": {{
-            "label_1": [y1, y2, y3, ...], # 'values' provides the corresponding y-axis values for each label
-            "label_2": [y1, y2, y3, ...]  # Must match the length of the corresponding entry in 'series'
+            "label_a": [y1, y2, y3, ...], # 'values' provides the corresponding y-axis values for each label
+            "label_b": [y1, y2, y3, ...]  # Must match the length of the corresponding entry in 'series'
         }},
         "chart_analysis": "Brief explanation of trends, outliers, or comparisons based on the chart"
         }}
@@ -97,6 +97,7 @@ def ask_question_llama(query: str, k: int):
     Overall note:
     - Never include comments or explanations outside the JSON
     - No trailing commas or invalid JSON
+    - ONLY ANSWER WHATS ASKED NOTHING MORE TRY TO UNDERSTAND THE USERS NEED
     """.strip()
 
 

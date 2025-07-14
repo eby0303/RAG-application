@@ -73,8 +73,15 @@ if submitted and user_prompt:
             series = chart.get("series", {})
             values = chart.get("values", {})
 
-            for label, x_vals in series.items():
-                y_vals = values.get(label, [])
+            series_keys = list(series.keys())
+            values_keys = list(values.keys())
+
+            for i in range(min(len(series_keys), len(values_keys))):
+                x_key = series_keys[i]
+                y_key = values_keys[i]
+
+                x_vals = series.get(x_key, [])
+                y_vals = values.get(y_key, [])
 
                 if not x_vals or not y_vals:
                     continue
@@ -83,7 +90,7 @@ if submitted and user_prompt:
                 x_vals = x_vals[:min_len]
                 y_vals = y_vals[:min_len]
 
-                df = pd.DataFrame({x_axis: x_vals, label: y_vals})
+                df = pd.DataFrame({x_axis: x_vals, y_key: y_vals})
 
                 if is_date_like(x_vals[0]):
                     auto_detect_dates = True
