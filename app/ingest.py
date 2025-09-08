@@ -4,9 +4,14 @@ import shutil
 import pandas as pd
 from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
+import sys
 
 from utils import get_embeddings
 from localgpt.constants import SOURCE_DIRECTORY, PERSIST_DIRECTORY
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+SOURCE_DIRECTORY = "data/SOURCE_DOCUMENTS1"
 
 # Circle code mapping
 CIRCLE_CODE_TO_NAME = {
