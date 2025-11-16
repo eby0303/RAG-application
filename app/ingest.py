@@ -5,13 +5,13 @@ import pandas as pd
 from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 import sys
-
-from utils import get_embeddings
-from localgpt.constants import SOURCE_DIRECTORY, PERSIST_DIRECTORY
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from utils import get_embeddings
 
-SOURCE_DIRECTORY = "data/SOURCE_DOCUMENTS1"
+# Get the project root directory (parent of app directory)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+SOURCE_DIRECTORY = os.path.join(PROJECT_ROOT, "data", "SOURCE_DOCUMENTS1")
+PERSIST_DIRECTORY = os.path.join(PROJECT_ROOT, "data", "indexes")
 
 # Circle code mapping
 CIRCLE_CODE_TO_NAME = {
@@ -44,6 +44,10 @@ def infer_metadata_for_file(file_name, metadata_map):
 
 def load_csv_documents(source_dir=SOURCE_DIRECTORY):
     documents = []
+    
+    if not os.path.exists(source_dir):
+        raise FileNotFoundError(f"Source directory not found: {source_dir}. Please ensure the directory exists.")
+    
     metadata_map = get_common_metadata(source_dir)
 
     for file_name in os.listdir(source_dir):

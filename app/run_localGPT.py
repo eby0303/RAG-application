@@ -1,9 +1,13 @@
 # app/run_localGPT.py
+import os
 from langchain_community.vectorstores import FAISS
 from app.utils import load_model, get_embeddings
-from localgpt.constants import PERSIST_DIRECTORY
 import json
 import re
+
+# Get the project root directory (parent of app directory)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PERSIST_DIRECTORY = os.path.join(PROJECT_ROOT, "data", "indexes")
 
 def extract_json(text: str):
     try:
@@ -29,7 +33,7 @@ def format_context_with_metadata(docs):
 
 def ask_question(query: str):
     embeddings = get_embeddings()
-    vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings, allow_dangerous_deserialization=True)
+    vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings)
     retriever = vectordb.as_retriever()
     
     llm = load_model()

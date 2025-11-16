@@ -4,22 +4,28 @@ import os
 import json
 import re
 import requests
+import time
 from app.utils import get_embeddings
 from langchain_community.vectorstores import FAISS
-from localgpt.constants import PERSIST_DIRECTORY
+
+# Get the project root directory (parent of app directory)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PERSIST_DIRECTORY = os.path.join(PROJECT_ROOT, "data", "indexes")
 
 from dotenv import load_dotenv
 load_dotenv()
 
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  
+# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  
+OPENROUTER_API_KEY = "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"
+
 HEADERS = {
     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
     "Content-Type": "application/json",   
     "HTTP-Referer": "http://localhost",  
     "X-Title": "Telecom-RAG-App"   
 }
-LLAMA_MODEL = "mistralai/mistral-small-3.2-24b-instruct:free"
+LLAMA_MODEL = "mistralai/mixtral-8x7b-instruct"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def extract_json(text: str):
@@ -46,7 +52,7 @@ def format_context_with_metadata(docs):
 
 def ask_question_llama(query: str, k: int):
     embeddings = get_embeddings()
-    vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings, allow_dangerous_deserialization=True)
+    vectordb = FAISS.load_local(PERSIST_DIRECTORY, embeddings)
     retriever = vectordb.as_retriever(search_kwargs={"k": k})
     docs = retriever.get_relevant_documents(query)
     

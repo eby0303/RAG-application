@@ -1,15 +1,13 @@
 # app/utils.py
 
 from langchain_community.llms import LlamaCpp
-from sentence_transformers import SentenceTransformer
 from langchain.embeddings import HuggingFaceEmbeddings
 from localgpt.utils import load_config
 import json
 
 def get_embeddings():
-    model_path = "models/local_e5_model"
     return HuggingFaceEmbeddings(
-        model_name=model_path,
+        model_name="intfloat/multilingual-e5-small",
         model_kwargs={"device": "cpu"}
     )
 
